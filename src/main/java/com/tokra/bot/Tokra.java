@@ -1,6 +1,11 @@
 package com.tokra.bot;
 
+import com.tokra.bot.commands.admin.*;
+import com.tokra.bot.commands.info.*;
 import com.tokra.bot.listeners.*;
+import com.tokra.bot.objects.DiscordCommand;
+import com.tokra.database.PrefixDatabase;
+import com.tokra.database.SQLiteDatabase;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -12,7 +17,11 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Tokra {
     private final static Logger logger = LoggerFactory.getLogger(Tokra.class);
@@ -22,19 +31,46 @@ public class Tokra {
     private boolean isRunning = false;
     private final ShardManager shardManager;
 
+    private final PrefixDatabase prefixDatabase;
+
+    private final List<DiscordCommand> commands;
+
     private Tokra() {
         config = Dotenv.configure().load();
+        commands = new ArrayList<>();
+        registerCommands();
         String token = config.get("DISCORD_TOKEN");
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(token);
         builder.addEventListeners(new CommandListener());
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.watching("Stargate"));
+        builder.setEnabledIntents(getIntents());
+        shardManager = builder.build(false);
+
+        prefixDatabase = new PrefixDatabase("jdbc:sqlite:./src/main/resources/databases/prefixes.db");
+        prefixDatabase.createTables();
+    }
+
+    private EnumSet<GatewayIntent> getIntents() {
         EnumSet<GatewayIntent> intents = GatewayIntent.getIntents(GatewayIntent.DEFAULT);
         intents.add(GatewayIntent.MESSAGE_CONTENT);
         intents.add(GatewayIntent.GUILD_MEMBERS);
         intents.add(GatewayIntent.GUILD_PRESENCES);
-        builder.setEnabledIntents(intents);
-        this.shardManager = builder.build(false);
+        return intents;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    private void registerCommands() {
+        commands.add(new SetPrefix());
+        commands.add(new Sync());
+        commands.add(new Ping());
+    }
+
+    public PrefixDatabase getPrefixDatabase() {
+        return prefixDatabase;
     }
 
     public static Tokra getInstance() {
@@ -42,6 +78,14 @@ public class Tokra {
             instance = new Tokra();
         }
         return instance;
+    }
+
+    public Dotenv getConfig() {
+        return config;
+    }
+
+    public List<DiscordCommand> getCommands() {
+        return commands;
     }
 
     public ShardManager getShardManager() {

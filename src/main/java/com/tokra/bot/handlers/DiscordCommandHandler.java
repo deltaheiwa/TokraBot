@@ -1,26 +1,27 @@
 package com.tokra.bot.handlers;
 
+import com.tokra.bot.Tokra;
+import com.tokra.bot.commands.admin.SetPrefix;
+import com.tokra.bot.commands.admin.Sync;
 import com.tokra.bot.commands.info.*;
 import com.tokra.bot.objects.DiscordCommand;
 import com.tokra.bot.objects.DiscordCommandContext;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DiscordCommandHandler {
     private final Map<String, DiscordCommand> commands = new HashMap<>();
     private final String fixedPrefix = "tk-";
 
-    public DiscordCommandHandler() {
-        addCommand(new PingCommand());
-    }
-
     private void addCommand(DiscordCommand command) {
         commands.put(command.getName(), command);
+    }
+
+    public void fetchCommandsFromBot() {
+        Tokra.getInstance().getCommands().forEach(this::addCommand);
     }
 
     public void handleTextCommand(MessageReceivedEvent event, String dynamicPrefix) {
@@ -48,5 +49,9 @@ public class DiscordCommandHandler {
         if (command != null) {
             command.execute(new DiscordCommandContext(event));
         }
+    }
+
+    public Map<String, DiscordCommand> getCommands() {
+        return commands;
     }
 }

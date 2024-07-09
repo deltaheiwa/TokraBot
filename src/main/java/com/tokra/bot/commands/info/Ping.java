@@ -3,16 +3,14 @@ package com.tokra.bot.commands.info;
 import com.tokra.bot.Tokra;
 import com.tokra.bot.objects.DiscordCommand;
 import com.tokra.bot.objects.DiscordCommandContext;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class PingCommand implements DiscordCommand {
+public class Ping extends DiscordCommand {
     @Override
     public void execute(DiscordCommandContext context) {
         String pongMessage = String.format("Pong %sms", Tokra.getInstance().getShardManager().getShards().get(0).getGatewayPing());
-        if (context.getTextEvent() != null) {
-            context.getTextEvent().getChannel().sendMessage(pongMessage).queue();
-        } else {
-            context.getSlashEvent().reply(pongMessage).queue();
-        }
+        context.sendMessage(pongMessage);
     }
 
     @Override
@@ -23,6 +21,11 @@ public class PingCommand implements DiscordCommand {
     @Override
     public String getDescription() {
         return "Pings the bot.";
+    }
+
+    @Override
+    public CommandData getCommandData() {
+        return Commands.slash(getName(), getDescription());
     }
 
 }
