@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,11 @@ public class Sync extends DiscordCommand {
     @Override
     public String getDescription() {
         return "Syncs the slash commands for the server.";
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("sync-commands");
     }
 
     @Override

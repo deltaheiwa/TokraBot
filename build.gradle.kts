@@ -22,6 +22,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("ch.qos.logback:logback-classic:1.4.12")
     implementation("org.xerial:sqlite-jdbc:3.46.0.0")
+    implementation("org.apache.commons:commons-lang3:3.14.0")
 }
 
 tasks.withType<JavaCompile> {

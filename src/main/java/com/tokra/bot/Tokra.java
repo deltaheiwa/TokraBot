@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,7 @@ public class Tokra {
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.watching("Stargate"));
         builder.setEnabledIntents(getIntents());
+        builder.enableCache(getCacheFlags());
         shardManager = builder.build(false);
 
         prefixDatabase = new PrefixDatabase("jdbc:sqlite:./src/main/resources/databases/prefixes.db");
@@ -59,6 +61,10 @@ public class Tokra {
         return intents;
     }
 
+    private EnumSet<CacheFlag> getCacheFlags() {
+        return EnumSet.of(CacheFlag.VOICE_STATE, CacheFlag.ONLINE_STATUS, CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS);
+    }
+
     public Logger getLogger() {
         return logger;
     }
@@ -67,6 +73,7 @@ public class Tokra {
         commands.add(new SetPrefix());
         commands.add(new Sync());
         commands.add(new Ping());
+        commands.add(new UserInfo());
     }
 
     public PrefixDatabase getPrefixDatabase() {

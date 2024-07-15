@@ -14,14 +14,22 @@ import java.util.stream.Collectors;
 
 public class DiscordCommandHandler {
     private final Map<String, DiscordCommand> commands = new HashMap<>();
+    private final Map<String, String> aliases = new HashMap<>();
     private final String fixedPrefix = "tk-";
 
     private void addCommand(DiscordCommand command) {
-        commands.put(command.getName(), command);
+        String primaryName = command.getName().toLowerCase();
+        commands.put(primaryName, command);
+        command.getAliases().forEach(alias -> aliases.put(alias.toLowerCase(), primaryName));
     }
 
     public void fetchCommandsFromBot() {
         Tokra.getInstance().getCommands().forEach(this::addCommand);
+    }
+
+    private DiscordCommand getCommandByName(String name) {
+        String primaryName = aliases.getOrDefault(name, name);
+        return commands.get(primaryName);
     }
 
     public void handleTextCommand(MessageReceivedEvent event, String dynamicPrefix) {
@@ -33,10 +41,10 @@ public class DiscordCommandHandler {
         }
 
         String[] split = rawMessage.substring(prefix.length()).split("\\s+");
-        String commandName = split[0];
+        String commandName = split[0].toLowerCase();
         List<String> args = Arrays.asList(split).subList(1, split.length);
 
-        DiscordCommand command = commands.get(commandName.toLowerCase());
+        DiscordCommand command = getCommandByName(commandName);
 
         if (command != null) {
             command.execute(new DiscordCommandContext(event, args));

@@ -21,7 +21,8 @@ public class CommandListener extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
-        String dynamicPrefix = Tokra.getInstance().getPrefixDatabase().getPrefix(event.getGuild().getId());
+        String dynamicPrefix = event.isFromGuild() ? Tokra.getInstance().getPrefixDatabase().getPrefix(event.getGuild().getId()) : "tk-";
+
         commandHandler.handleTextCommand(event, dynamicPrefix);
     }
 

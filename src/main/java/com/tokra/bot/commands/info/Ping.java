@@ -6,6 +6,9 @@ import com.tokra.bot.objects.DiscordCommandContext;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Ping extends DiscordCommand {
     @Override
     public void execute(DiscordCommandContext context) {
@@ -21,6 +24,11 @@ public class Ping extends DiscordCommand {
     @Override
     public String getDescription() {
         return "Pings the bot.";
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of();
     }
 
     @Override

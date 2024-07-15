@@ -2,12 +2,16 @@ package com.tokra.bot.objects;
 
 import com.tokra.bot.enums.DiscordCommandEventType;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.*;
 
 public class DiscordCommandContext {
@@ -52,6 +56,22 @@ public class DiscordCommandContext {
         }
     }
 
+    public Member getAuthorMember() {
+        if (type == DiscordCommandEventType.TEXT) {
+            return textEvent.getMember();
+        } else {
+            return slashEvent.getMember();
+        }
+    }
+
+    public User getAuthorUser() {
+        if (type == DiscordCommandEventType.TEXT) {
+            return textEvent.getAuthor();
+        } else {
+            return slashEvent.getUser();
+        }
+    }
+
     public void sendMessage(String msg) {
         if (type == DiscordCommandEventType.TEXT) {
             textEvent.getChannel().sendMessage(msg).queue();
@@ -60,8 +80,40 @@ public class DiscordCommandContext {
         }
     }
 
+    public void sendMessage(String msg, boolean ephemeral) {
+        if (type == DiscordCommandEventType.TEXT) {
+            textEvent.getChannel().sendMessage(msg).queue();
+        } else {
+            slashEvent.reply(msg).setEphemeral(ephemeral).queue();
+        }
+    }
+
+    public void sendMessage(String msg, MessageEmbed embed) {
+        if (type == DiscordCommandEventType.TEXT) {
+            textEvent.getChannel().sendMessage(msg).setEmbeds(embed).queue();
+        } else {
+            slashEvent.reply(msg).setEmbeds(embed).queue();
+        }
+    }
+
 
     public List<String> getArgs() {
         return args;
+    }
+
+    public String getArg(int index) {
+        if (index >= args.size()) {
+            return null;
+        }
+
+        return args.get(index);
+    }
+
+    public List<Member> getMentionedMembers() {
+        if (type == DiscordCommandEventType.TEXT) {
+            return textEvent.getMessage().getMentions().getMembers();
+        } else {
+            return List.of(slashEvent.getOption("user").getAsMember());
+        }
     }
 }
